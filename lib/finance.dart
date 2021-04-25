@@ -5,7 +5,6 @@
 library finance;
 
 import 'dart:math';
-import 'package:meta/meta.dart';
 
 class Finance {
   /// Returns the value at the end of the `nper` periods.
@@ -42,12 +41,13 @@ class Finance {
   ///     Available:
   ///     http://www.oasis-open.org/committees/documents.php?wg_abbrev=office-formula
   ///     OpenDocument-formula-20090508.odt
-  static num fv(
-      {@required num rate,
-      @required num nper,
-      @required num pmt,
-      @required num pv,
-      bool end = true}) {
+  static num fv({
+    required num rate,
+    required num nper,
+    required num pmt,
+    required num pv,
+    bool end = true,
+  }) {
     final int when = end ? 0 : 1;
     final num temp = pow(1 + rate, nper);
     final num fact =
@@ -97,12 +97,13 @@ class Finance {
   ///     Available:
   ///     http://www.oasis-open.org/committees/documents.php
   ///     ?wg_abbrev=office-formulaOpenDocument-formula-20090508.odt
-  static num pmt(
-      {@required num rate,
-      @required num nper,
-      @required num pv,
-      num fv = 0,
-      bool end = true}) {
+  static num pmt({
+    required num rate,
+    required num nper,
+    required num pv,
+    num fv = 0,
+    bool end = true,
+  }) {
     final int when = end ? 0 : 1;
     final num temp = pow(1 + rate, nper);
     final num maskedRate = (rate == 0) ? 1 : rate;
@@ -134,12 +135,13 @@ class Finance {
   ///     fv + pv*(1+rate)**nper + pmt*(1+rate*(end))/rate*((1+rate)**nper-1) = 0
   ///    but if ``rate = 0`` then::
   ///     fv + pv + pmt*nper = 0
-  static num nper(
-      {@required num rate,
-      @required num pmt,
-      @required num pv,
-      num fv = 0,
-      bool end = true}) {
+  static num nper({
+    required num rate,
+    required num pmt,
+    required num pv,
+    num fv = 0,
+    bool end = true,
+  }) {
     final int when = end ? 0 : 1;
 
     try {
@@ -170,13 +172,14 @@ class Finance {
   /// If specified, the `end` argument specifies when payments are due, at the end or beginning
   /// of each period. (default=true).
   ///
-  static num ipmt(
-      {@required num rate,
-      @required num per,
-      @required num nper,
-      @required num pv,
-      num fv = 0,
-      bool end = true}) {
+  static num ipmt({
+    required num rate,
+    required num per,
+    required num nper,
+    required num pv,
+    num fv = 0,
+    bool end = true,
+  }) {
     final num totalPmt = pmt(rate: rate, nper: nper, pv: pv, fv: fv, end: end);
     num ipmt =
         _rbl(rate: rate, per: per, pmt: totalPmt, pv: pv, end: end) * rate;
@@ -189,10 +192,10 @@ class Finance {
   //  function to not interfere with the 'fv' keyword argument within the 'ipmt'
   //  function.  It is the 'remaining balance on loan'.
   static num _rbl(
-      {@required num rate,
-      @required num per,
-      @required num pmt,
-      @required num pv,
+      {required num rate,
+      required num per,
+      required num pmt,
+      required num pv,
       bool end = true}) {
     return fv(rate: rate, nper: per - 1, pmt: pmt, pv: pv, end: end);
   }
@@ -215,13 +218,14 @@ class Finance {
   /// If specified, the `end` argument specifies when payments are due, at the end or beginning
   /// of each period. (default=true).
   ///
-  static num ppmt(
-      {@required num rate,
-      @required num per,
-      @required num nper,
-      @required num pv,
-      num fv = 0,
-      bool end = true}) {
+  static num ppmt({
+    required num rate,
+    required num per,
+    required num nper,
+    required num pv,
+    num fv = 0,
+    bool end = true,
+  }) {
     final num total = pmt(rate: rate, nper: nper, pv: pv, fv: fv, end: end);
     return total -
         ipmt(rate: rate, per: per, nper: nper, pv: pv, fv: fv, end: end);
@@ -262,12 +266,13 @@ class Finance {
   ///    Available:
   ///    http://www.oasis-open.org/committees/documents.php?wg_abbrev=office-formula
   ///    OpenDocument-formula-20090508.odt
-  static num pv(
-      {@required num rate,
-      @required num nper,
-      @required num pmt,
-      @required num fv,
-      bool end = true}) {
+  static num pv({
+    required num rate,
+    required num nper,
+    required num pmt,
+    required num fv,
+    bool end = true,
+  }) {
     final int when = end ? 0 : 1;
     final num temp = pow(1 + rate, nper);
     final num fact =
@@ -335,15 +340,16 @@ class Finance {
   ///    (OASIS). Billerica, MA, USA. [ODT Document]. Available:
   ///    http://www.oasis-open.org/committees/documents.php?wg_abbrev=office-formula
   ///    OpenDocument-formula-20090508.odt
-  static num rate(
-      {@required num nper,
-      @required num pmt,
-      @required num pv,
-      @required num fv,
-      bool end = true,
-      num guess = 0.1,
-      num tol = 1e-6,
-      num maxIter = 100}) {
+  static num rate({
+    required num nper,
+    required num pmt,
+    required num pv,
+    required num fv,
+    bool end = true,
+    num guess = 0.1,
+    num tol = 1e-6,
+    num maxIter = 100,
+  }) {
     final int when = end ? 0 : 1;
 
     num rn = guess;
@@ -380,13 +386,13 @@ class Finance {
   /// ----------
   ///    .. [G] L. J. Gitman, "Principles of Managerial Finance, Brief," 3rd ed.,
   ///       Addison-Wesley, 2003, pg. 346.
-  static num npv({@required num rate, @required List<num> values}) {
+  static num npv({required num rate, required List<num> values}) {
     return List<int>.generate(values.length, (int index) => index)
         .map((int index) => values[index] / pow(1 + rate, index))
         .fold(0, (num p, num c) => p + c);
   }
 
-  static num _npvPrime({@required num rate, @required List<num> values}) {
+  static num _npvPrime({required num rate, required List<num> values}) {
     return List<int>.generate(values.length, (int index) => index)
         .map((int index) => -index * values[index] / pow(1 + rate, index + 1))
         .fold(0, (num p, num c) => p + c);
@@ -426,11 +432,12 @@ class Finance {
   ///    g(r) is the formula
   ///    g'(r) is the derivative with respect to r.
 
-  static num irr(
-      {@required List<num> values,
-      num guess = 0.1,
-      num tol = 1e-6,
-      num maxIter = 100}) {
+  static num irr({
+    required List<num> values,
+    num guess = 0.1,
+    num tol = 1e-6,
+    num maxIter = 100,
+  }) {
     num rn = guess;
     num iterator = 0;
     bool close = false;
